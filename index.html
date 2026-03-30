@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ImgGo - Busca Pro</title>
+    <title>ImgGo - Busca Profissional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -19,9 +19,10 @@
             color: var(--text-main); 
             margin: 0; 
             padding: 0; 
+            overflow-x: hidden;
         }
 
-        /* Header Estilo App Premium */
+        /* Header Premium com Blur */
         .header { 
             position: sticky; 
             top: 0; 
@@ -33,14 +34,14 @@
         }
 
         .logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .logo-area i { color: var(--accent); font-size: 24px; }
-        .logo-area h1 { font-size: 20px; margin: 0; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-area i { color: var(--accent); font-size: 22px; }
+        .logo-area h1 { font-size: 22px; margin: 0; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
         .search-container {
             display: flex;
             background: #1e293b;
             border-radius: 12px;
-            padding: 5px;
+            padding: 4px;
             border: 1px solid #334155;
         }
 
@@ -60,10 +61,16 @@
             width: 50px; 
             border-radius: 10px; 
             color: #020617; 
-            cursor: pointer; 
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* Grade de Imagens (3 Colunas) */
+        /* Anúncio Native Banner 4:1 */
+        .ad-space { margin: 10px; text-align: center; min-height: 50px; }
+
+        /* Grade de 3 Colunas Estilo ImageSearchMan */
         #results { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -76,18 +83,19 @@
             background: #0f172a; 
             overflow: hidden; 
             position: relative;
+            cursor: pointer;
         }
 
         .img-card img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            transition: transform 0.3s;
+            transition: transform 0.2s;
         }
 
-        .img-card:active img { transform: scale(0.95); }
+        .img-card:active img { transform: scale(0.96); }
 
-        /* Modal de Visualização */
+        /* Modal de Visualização Estilo Nativo */
         .modal { 
             display: none; 
             position: fixed; 
@@ -102,24 +110,27 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             position: sticky;
             top: 0;
+            z-index: 1001;
         }
 
-        .full-img { width: 100%; max-height: 80vh; object-fit: contain; }
+        .full-img-container { width: 100%; text-align: center; background: #000; }
+        .full-img { max-width: 100%; max-height: 75vh; object-fit: contain; }
 
         .action-buttons {
             display: flex;
             justify-content: space-around;
-            padding: 20px;
+            padding: 15px;
             gap: 10px;
+            background: var(--bg-dark);
         }
 
         .btn-action {
             flex: 1;
-            padding: 12px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 10px;
             border: none;
             font-weight: bold;
             display: flex;
@@ -127,42 +138,50 @@
             justify-content: center;
             gap: 8px;
             cursor: pointer;
+            font-size: 14px;
         }
 
-        .btn-download { background: #38bdf8; color: #020617; }
+        .btn-download { background: var(--accent); color: #020617; }
         .btn-share { background: #1e293b; color: white; border: 1px solid #334155; }
 
-        .related-section { padding: 10px; }
-        .related-title { font-size: 14px; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
+        .related-section { padding: 15px; background: var(--bg-dark); }
+        .related-title { font-size: 15px; color: var(--accent); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="logo-area">
-            <i class="fa-solid fa-magnifying-glass-chart"></i>
+            <i class="fa-solid fa-bolt-lightning"></i>
             <h1>ImgGo</h1>
         </div>
         <div class="search-container">
-            <input type="text" id="query" placeholder="O que você procura?">
+            <input type="text" id="query" placeholder="Pesquisar imagens...">
             <button class="btn-search" onclick="searchImages()">
-                <i class="fa-solid fa-arrow-right"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
+    </div>
+
+    <div class="ad-space">
+        <div id="container-229016a21e1a937d798a4dd66405699f"></div>
     </div>
 
     <div id="results"></div>
 
     <div id="imgModal" class="modal">
         <div class="modal-header">
-            <span onclick="closeModal()"><i class="fa-solid fa-xmark"></i> Fechar</span>
+            <span onclick="closeModal()" style="cursor:pointer;"><i class="fa-solid fa-chevron-left"></i> Voltar</span>
             <i class="fa-solid fa-ellipsis-vertical"></i>
         </div>
-        <img id="modalImg" class="full-img">
+        
+        <div class="full-img-container">
+            <img id="modalImg" class="full-img">
+        </div>
         
         <div class="action-buttons">
             <button class="btn-action btn-download" onclick="downloadActiveImg()">
-                <i class="fa-solid fa-download"></i> Salvar
+                <i class="fa-solid fa-cloud-arrow-down"></i> Salvar
             </button>
             <button class="btn-action btn-share" onclick="shareActiveImg()">
                 <i class="fa-solid fa-share-nodes"></i> Enviar
@@ -176,9 +195,10 @@
     </div>
 
     <script>
-        const GOOGLE_API_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU'; 
-        const GOOGLE_CX_ID = 'b490562deb2ef44c9'; 
-        const PIXABAY_KEY = '55230728-13cd2e9dbc50bb6c060ad78f0';
+        // Suas chaves configuradas
+        const G_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU';
+        const G_CX = 'b490562deb2ef44c9';
+        const P_KEY = '55230728-13cd2e9dbc50bb6c060ad78f0';
 
         let currentImgUrl = '';
 
@@ -187,26 +207,35 @@
             const targetDiv = isRelated ? document.getElementById('relatedResults') : document.getElementById('results');
             
             if (!query) return;
-            if(!isRelated) targetDiv.innerHTML = '<div style="grid-column: 1/-1; padding:20px; text-align:center;">Buscando...</div>';
+            if(!isRelated) {
+                targetDiv.innerHTML = '<div style="grid-column: 1/-1; padding:40px; text-align:center; color:#38bdf8;">Buscando no ImgGo...</div>';
+                window.scrollTo(0,0);
+            }
 
+            // Tenta Google primeiro
             try {
-                const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX_ID}&q=${encodeURIComponent(query)}&searchType=image&num=18`);
+                const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${G_KEY}&cx=${G_CX}&q=${encodeURIComponent(query)}&searchType=image&num=18`);
                 const data = await res.json();
 
                 if (!data.items || res.status !== 200) {
-                    return searchPixabay(query, targetDiv);
+                    throw new Error("Google Limit");
                 }
                 renderResults(data.items, targetDiv);
-            } catch (e) { searchPixabay(query, targetDiv); }
+            } catch (e) {
+                // Se o Google falhar, usa Pixabay de reserva
+                searchPixabay(query, targetDiv);
+            }
         }
 
         async function searchPixabay(query, targetDiv) {
             try {
-                const res = await fetch(`https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=18`);
+                const res = await fetch(`https://pixabay.com/api/?key=${P_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=18`);
                 const data = await res.json();
                 const formatted = data.hits.map(img => ({ link: img.largeImageURL, title: img.tags }));
                 renderResults(formatted, targetDiv);
-            } catch (e) { targetDiv.innerHTML = '<p>Erro ao carregar.</p>'; }
+            } catch (e) { 
+                targetDiv.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">Erro ao carregar imagens.</p>'; 
+            }
         }
 
         function renderResults(items, targetDiv) {
@@ -214,7 +243,9 @@
             items.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'img-card';
-                card.innerHTML = `<img src="${item.link}" loading="lazy" onclick="openModal('${item.link}', '${item.title.replace(/'/g, "")}')">`;
+                // Limpeza de título para evitar quebra de código
+                const safeTitle = item.title.replace(/['"“”]/g, "");
+                card.innerHTML = `<img src="${item.link}" loading="lazy" onclick="openModal('${item.link}', '${safeTitle}')">`;
                 targetDiv.appendChild(card);
             });
         }
@@ -223,18 +254,32 @@
             currentImgUrl = url;
             document.getElementById('modalImg').src = url;
             document.getElementById('imgModal').style.display = "block";
+            document.body.style.overflow = "hidden";
+            // Busca relacionadas baseadas no título da imagem clicada
             searchImages(title, true);
         }
 
-        function closeModal() { document.getElementById('imgModal').style.display = "none"; }
-        
-        function downloadActiveImg() { window.open(currentImgUrl, '_blank'); }
+        function closeModal() {
+            document.getElementById('imgModal').style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+
+        function downloadActiveImg() {
+            window.open(currentImgUrl, '_blank');
+        }
 
         async function shareActiveImg() {
             if (navigator.share) {
                 navigator.share({ title: 'ImgGo', url: currentImgUrl });
-            } else { alert('Link: ' + currentImgUrl); }
+            } else {
+                alert('Link copiado: ' + currentImgUrl);
+            }
         }
+
+        // Busca ao apertar Enter
+        document.getElementById('query').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchImages();
+        });
     </script>
 </body>
 </html>
