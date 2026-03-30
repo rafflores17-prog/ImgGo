@@ -1,285 +1,36 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ImgGo - Busca Profissional</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --bg-dark: #020617;
-            --card-bg: #1e293b;
-            --accent: #38bdf8;
-            --text-main: #f8fafc;
-        }
+<script>
+    // Suas credenciais oficiais
+    const G_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU';
+    const G_CX = 'b490562deb2ef44c9'; // Seu ID confirmado
 
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg-dark); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 0; 
-            overflow-x: hidden;
-        }
-
-        /* Header Premium com Blur */
-        .header { 
-            position: sticky; 
-            top: 0; 
-            background: rgba(15, 23, 42, 0.9); 
-            backdrop-filter: blur(10px);
-            padding: 15px; 
-            z-index: 100; 
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        .logo-area i { color: var(--accent); font-size: 22px; }
-        .logo-area h1 { font-size: 22px; margin: 0; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .search-container {
-            display: flex;
-            background: #1e293b;
-            border-radius: 12px;
-            padding: 4px;
-            border: 1px solid #334155;
-        }
-
-        input { 
-            flex: 1; 
-            background: transparent; 
-            border: none; 
-            padding: 12px; 
-            color: white; 
-            outline: none; 
-            font-size: 16px; 
-        }
-
-        .btn-search { 
-            background: var(--accent); 
-            border: none; 
-            width: 50px; 
-            border-radius: 10px; 
-            color: #020617; 
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Anúncio Native Banner 4:1 */
-        .ad-space { margin: 10px; text-align: center; min-height: 50px; }
-
-        /* Grade de 3 Colunas Estilo ImageSearchMan */
-        #results { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 2px; 
-            padding: 2px; 
-        }
-
-        .img-card { 
-            aspect-ratio: 1 / 1; 
-            background: #0f172a; 
-            overflow: hidden; 
-            position: relative;
-            cursor: pointer;
-        }
-
-        .img-card img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-            transition: transform 0.2s;
-        }
-
-        .img-card:active img { transform: scale(0.96); }
-
-        /* Modal de Visualização Estilo Nativo */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            inset: 0; 
-            background: #000; 
-            z-index: 1000; 
-            overflow-y: auto; 
-        }
-
-        .modal-header {
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.7);
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-        }
-
-        .full-img-container { width: 100%; text-align: center; background: #000; }
-        .full-img { max-width: 100%; max-height: 75vh; object-fit: contain; }
-
-        .action-buttons {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            gap: 10px;
-            background: var(--bg-dark);
-        }
-
-        .btn-action {
-            flex: 1;
-            padding: 14px;
-            border-radius: 10px;
-            border: none;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .btn-download { background: var(--accent); color: #020617; }
-        .btn-share { background: #1e293b; color: white; border: 1px solid #334155; }
-
-        .related-section { padding: 15px; background: var(--bg-dark); }
-        .related-title { font-size: 15px; color: var(--accent); margin-bottom: 12px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
-    </style>
-</head>
-<body>
-
-    <div class="header">
-        <div class="logo-area">
-            <i class="fa-solid fa-bolt-lightning"></i>
-            <h1>ImgGo</h1>
-        </div>
-        <div class="search-container">
-            <input type="text" id="query" placeholder="Pesquisar imagens...">
-            <button class="btn-search" onclick="searchImages()">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="ad-space">
-        <div id="container-229016a21e1a937d798a4dd66405699f"></div>
-    </div>
-
-    <div id="results"></div>
-
-    <div id="imgModal" class="modal">
-        <div class="modal-header">
-            <span onclick="closeModal()" style="cursor:pointer;"><i class="fa-solid fa-chevron-left"></i> Voltar</span>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
-        </div>
+    async function searchImages() {
+        const query = document.getElementById('query').value;
+        const resultsDiv = document.getElementById('results');
         
-        <div class="full-img-container">
-            <img id="modalImg" class="full-img">
-        </div>
-        
-        <div class="action-buttons">
-            <button class="btn-action btn-download" onclick="downloadActiveImg()">
-                <i class="fa-solid fa-cloud-arrow-down"></i> Salvar
-            </button>
-            <button class="btn-action btn-share" onclick="shareActiveImg()">
-                <i class="fa-solid fa-share-nodes"></i> Enviar
-            </button>
-        </div>
+        if (!query) return;
+        resultsDiv.innerHTML = 'Buscando...';
 
-        <div class="related-section">
-            <div class="related-title"><i class="fa-solid fa-layer-group"></i> Imagens Relacionadas</div>
-            <div id="relatedResults" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;"></div>
-        </div>
-    </div>
+        // URL para buscar na WEB TODA (após você ligar a chave no painel)
+        const url = `https://www.googleapis.com/customsearch/v1?key=${G_KEY}&cx=${G_CX}&q=${encodeURIComponent(query)}&searchType=image&num=15`;
 
-    <script>
-        // Suas chaves configuradas
-        const G_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU';
-        const G_CX = 'b490562deb2ef44c9';
-        const P_KEY = '55230728-13cd2e9dbc50bb6c060ad78f0';
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
 
-        let currentImgUrl = '';
-
-        async function searchImages(customQuery = null, isRelated = false) {
-            const query = customQuery || document.getElementById('query').value;
-            const targetDiv = isRelated ? document.getElementById('relatedResults') : document.getElementById('results');
-            
-            if (!query) return;
-            if(!isRelated) {
-                targetDiv.innerHTML = '<div style="grid-column: 1/-1; padding:40px; text-align:center; color:#38bdf8;">Buscando no ImgGo...</div>';
-                window.scrollTo(0,0);
-            }
-
-            // Tenta Google primeiro
-            try {
-                const res = await fetch(`https://www.googleapis.com/customsearch/v1?key=${G_KEY}&cx=${G_CX}&q=${encodeURIComponent(query)}&searchType=image&num=18`);
-                const data = await res.json();
-
-                if (!data.items || res.status !== 200) {
-                    throw new Error("Google Limit");
-                }
-                renderResults(data.items, targetDiv);
-            } catch (e) {
-                // Se o Google falhar, usa Pixabay de reserva
-                searchPixabay(query, targetDiv);
-            }
-        }
-
-        async function searchPixabay(query, targetDiv) {
-            try {
-                const res = await fetch(`https://pixabay.com/api/?key=${P_KEY}&q=${encodeURIComponent(query)}&image_type=photo&per_page=18`);
-                const data = await res.json();
-                const formatted = data.hits.map(img => ({ link: img.largeImageURL, title: img.tags }));
-                renderResults(formatted, targetDiv);
-            } catch (e) { 
-                targetDiv.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">Erro ao carregar imagens.</p>'; 
-            }
-        }
-
-        function renderResults(items, targetDiv) {
-            targetDiv.innerHTML = '';
-            items.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'img-card';
-                // Limpeza de título para evitar quebra de código
-                const safeTitle = item.title.replace(/['"“”]/g, "");
-                card.innerHTML = `<img src="${item.link}" loading="lazy" onclick="openModal('${item.link}', '${safeTitle}')">`;
-                targetDiv.appendChild(card);
-            });
-        }
-
-        function openModal(url, title) {
-            currentImgUrl = url;
-            document.getElementById('modalImg').src = url;
-            document.getElementById('imgModal').style.display = "block";
-            document.body.style.overflow = "hidden";
-            // Busca relacionadas baseadas no título da imagem clicada
-            searchImages(title, true);
-        }
-
-        function closeModal() {
-            document.getElementById('imgModal').style.display = "none";
-            document.body.style.overflow = "auto";
-        }
-
-        function downloadActiveImg() {
-            window.open(currentImgUrl, '_blank');
-        }
-
-        async function shareActiveImg() {
-            if (navigator.share) {
-                navigator.share({ title: 'ImgGo', url: currentImgUrl });
+            if (data.items) {
+                resultsDiv.innerHTML = '';
+                data.items.forEach(item => {
+                    const img = document.createElement('img');
+                    img.src = item.link;
+                    img.style = "width:32%; margin:1%; border-radius:8px; aspect-ratio:1/1; object-fit:cover;";
+                    img.onclick = () => window.open(item.link, '_blank');
+                    resultsDiv.appendChild(img);
+                });
             } else {
-                alert('Link copiado: ' + currentImgUrl);
+                resultsDiv.innerHTML = "Nada encontrado. Verifique se ativou 'Pesquisar em toda a Web' no painel.";
             }
+        } catch (error) {
+            resultsDiv.innerHTML = "Erro na API. Verifique sua cota diária.";
         }
-
-        // Busca ao apertar Enter
-        document.getElementById('query').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchImages();
-        });
-    </script>
-</body>
-</html>
+    }
+</script>
