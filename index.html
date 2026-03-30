@@ -1,36 +1,114 @@
-<script>
-    // Suas credenciais oficiais
-    const G_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU';
-    const G_CX = 'b490562deb2ef44c9'; // Seu ID confirmado
-
-    async function searchImages() {
-        const query = document.getElementById('query').value;
-        const resultsDiv = document.getElementById('results');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ImgGo - @ericDfp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #020617; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
         
-        if (!query) return;
-        resultsDiv.innerHTML = 'Buscando...';
+        .header { position: sticky; top: 0; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px); padding: 15px; z-index: 100; border-bottom: 1px solid #1e293b; }
+        .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: bold; color: var(--accent); }
+        
+        .search-box { display: flex; background: var(--card); border-radius: 12px; padding: 4px; border: 1px solid #334155; }
+        input { flex: 1; background: transparent; border: none; padding: 12px; color: white; outline: none; font-size: 16px; }
+        .btn-search { background: var(--accent); border: none; width: 50px; border-radius: 10px; color: #020617; cursor: pointer; }
 
-        // URL para buscar na WEB TODA (após você ligar a chave no painel)
-        const url = `https://www.googleapis.com/customsearch/v1?key=${G_KEY}&cx=${G_CX}&q=${encodeURIComponent(query)}&searchType=image&num=15`;
+        #results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; }
+        .img-card { aspect-ratio: 1/1; background: #0f172a; overflow: hidden; cursor: pointer; }
+        .img-card img { width: 100%; height: 100%; object-fit: cover; }
 
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
+        /* Modal Estilo Nativo */
+        .modal { display: none; position: fixed; inset: 0; background: #000; z-index: 1000; overflow-y: auto; }
+        .modal-header { padding: 15px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); position: sticky; top: 0; }
+        .full-img { width: 100%; max-height: 70vh; object-fit: contain; background: #000; }
+        
+        .actions { display: flex; padding: 15px; gap: 10px; }
+        .btn-btn { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-sky { background: var(--accent); color: #020617; }
+        .btn-dark { background: #1e293b; color: white; }
 
-            if (data.items) {
-                resultsDiv.innerHTML = '';
-                data.items.forEach(item => {
-                    const img = document.createElement('img');
-                    img.src = item.link;
-                    img.style = "width:32%; margin:1%; border-radius:8px; aspect-ratio:1/1; object-fit:cover;";
-                    img.onclick = () => window.open(item.link, '_blank');
-                    resultsDiv.appendChild(img);
-                });
-            } else {
-                resultsDiv.innerHTML = "Nada encontrado. Verifique se ativou 'Pesquisar em toda a Web' no painel.";
+        .related { padding: 15px; }
+        .related-t { font-size: 14px; color: var(--accent); margin-bottom: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="logo"><i class="fa-solid fa-bolt"></i> ImgGo</div>
+        <div class="search-box">
+            <input type="text" id="query" placeholder="Buscar imagens...">
+            <button class="btn-search" onclick="searchImages()"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </div>
+
+    <div id="results"></div>
+
+    <div id="imgModal" class="modal">
+        <div class="modal-header">
+            <span onclick="closeModal()"><i class="fa-solid fa-chevron-left"></i> Voltar</span>
+        </div>
+        <img id="modalImg" class="full-img">
+        <div class="actions">
+            <button class="btn-btn btn-sky" onclick="downloadImg()"><i class="fa-solid fa-download"></i> Salvar</button>
+            <button class="btn-btn btn-dark" onclick="shareImg()"><i class="fa-solid fa-share"></i> Enviar</button>
+        </div>
+        <div class="related">
+            <div class="related-t">Imagens Relacionadas</div>
+            <div id="relatedResults" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Suas chaves
+        const API_KEY = 'AIzaSyCmHc4wC8ty1NNo9xemC2Yf384QK2T_GrU';
+        const CX_ID = 'b490562deb2ef44c9'; 
+        const PIX_KEY = '55230728-13cd2e9dbc50bb6c060ad78f0';
+
+        let activeUrl = '';
+
+        async function searchImages(q = null, isRel = false) {
+            const query = q || document.getElementById('query').value;
+            const target = isRel ? document.getElementById('relatedResults') : document.getElementById('results');
+            if(!query) return;
+            if(!isRel) target.innerHTML = '<p style="padding:20px">Buscando...</p>';
+
+            try {
+                // Busca Google
+                const r = await fetch(`https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX_ID}&q=${encodeURIComponent(query)}&searchType=image&num=18`);
+                const d = await r.json();
+                if(!d.items) throw 'erro';
+                render(d.items, target);
+            } catch(e) {
+                // Fallback Pixabay
+                const rP = await fetch(`https://pixabay.com/api/?key=${PIX_KEY}&q=${encodeURIComponent(query)}&per_page=18`);
+                const dP = await rP.json();
+                render(dP.hits.map(i => ({link: i.largeImageURL, title: i.tags})), target);
             }
-        } catch (error) {
-            resultsDiv.innerHTML = "Erro na API. Verifique sua cota diária.";
         }
-    }
-</script>
+
+        function render(items, div) {
+            div.innerHTML = '';
+            items.forEach(i => {
+                const card = document.createElement('div');
+                card.className = 'img-card';
+                card.innerHTML = `<img src="${i.link}" onclick="openModal('${i.link}', '${i.title.replace(/'/g,"")}')">`;
+                div.appendChild(card);
+            });
+        }
+
+        function openModal(url, title) {
+            activeUrl = url;
+            document.getElementById('modalImg').src = url;
+            document.getElementById('imgModal').style.display = 'block';
+            searchImages(title, true); // Relacionadas
+        }
+
+        function closeModal() { document.getElementById('imgModal').style.display = 'none'; }
+        function downloadImg() { window.open(activeUrl, '_blank'); }
+        function shareImg() { navigator.share ? navigator.share({url: activeUrl}) : alert(activeUrl); }
+    </script>
+</body>
+</html>
