@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de Imagens VIP</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: #020617; 
+            color: white; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        h2 { color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; }
+        .search-box {
+            display: flex;
+            background: #1e293b;
+            padding: 5px;
+            border-radius: 50px;
+            border: 2px solid #334155;
+            margin-bottom: 25px;
+        }
+        input { 
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+        button { 
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:active { transform: scale(0.95); }
+        #galeria { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px; 
+        }
+        .img-card {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            height: 150px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+        }
+        .loading { color: #38bdf8; font-style: italic; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2>🖼️ BUSCA IMAGENS</h2>
+    
+    <div class="search-box">
+        <input type="text" id="query" placeholder="Ex: Carros, Natureza...">
+        <button onclick="buscar()">BUSCAR</button>
+    </div>
+
+    <div id="galeria"></div>
+
+    <script>
+        async function buscar() {
+            const query = document.getElementById('query').value;
+            const galeria = document.getElementById('galeria');
+            
+            if (!query) return;
+            
+            galeria.innerHTML = '<p class="loading">Buscando no acervo...</p>';
+
+            // SUA CHAVE APLICADA AQUI
+            const key = '55230728-13cd2e9dbc50bb6c060ad78f0'; 
+            const url = `https://pixabay.com/api/?key=${key}&q=${encodeURIComponent(query)}&image_type=photo&per_page=30&safesearch=true`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                galeria.innerHTML = '';
+                
+                if(data.hits.length === 0) {
+                    galeria.innerHTML = '<p>Nenhuma imagem encontrada.</p>';
+                    return;
+                }
+
+                data.hits.forEach(img => {
+                    const card = document.createElement('div');
+                    card.className = 'img-card';
+                    card.innerHTML = `<img src="${img.webformatURL}" loading="lazy">`;
+                    // Clique para ver em tamanho real
+                    card.onclick = () => window.open(img.largeImageURL, '_blank');
+                    galeria.appendChild(card);
+                });
+
+            } catch (e) {
+                galeria.innerHTML = '<p style="color:red;">Erro de conexão.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
+
